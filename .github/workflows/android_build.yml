@@ -34,6 +34,6 @@ jobs:
 
     - name: Upload APK to Google Drive (Rclone)
       run: |
-        # Upload vers le remote 'drive' défini dans la config
+        # Upload vers le remote 'remote' défini dans la config
         # Le dossier destination sera 'LocationTrackerBuilds' à la racine
-        rclone copy app/build/outputs/apk/debug/app-debug.apk drive:/LocationTrackerBuilds/ --copy-links
+        rclone copy app/build/outputs/apk/debug/app-debug.apk remote:/APK/ --copy-links
