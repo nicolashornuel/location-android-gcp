@@ -27,11 +27,13 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew assembleDebug
 
-    - name: Upload APK to Google Drive
-      uses: adityak74/google-drive-upload-git-action@main
+    - name: Setup Rclone
+      uses: AnimMouse/setup-rclone@v1
       with:
-        credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
-        filename: app/build/outputs/apk/debug/app-debug.apk
-        folderId: ${{ secrets.GDRIVE_FOLDER_ID }}
-        name: LocationTracker-debug-${{ github.sha }}.apk
-        overwrite: "false"
+        rclone_config: ${{ secrets.RCLONE_CONF }}
+
+    - name: Upload APK to Google Drive (Rclone)
+      run: |
+        # Upload vers le remote 'drive' défini dans la config
+        # Le dossier destination sera 'LocationTrackerBuilds' à la racine
+        rclone copy app/build/outputs/apk/debug/app-debug.apk drive:/LocationTrackerBuilds/ --copy-links
