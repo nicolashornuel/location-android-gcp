@@ -1,0 +1,27 @@
+{
+    "name": "Android Java",
+    "image": "mcr.microsoft.com/devcontainers/java:17-bullseye",
+    "features": {
+        "ghcr.io/devcontainers/features/java:1": {
+            "version": "17",
+            "installGradle": true,
+            "gradleVersion": "8.5"
+        },
+        "ghcr.io/devcontainers-contrib/features/android-sdk:2": {
+            "sdkVersion": "34",
+            "buildToolsVersion": "34.0.0",
+            "cmdLineToolsVersion": "latest",
+            "platformVersion": "34"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "vscjava.vscode-java-pack",
+                "mathiasfrohlich.Kotlin",
+                "adc.rich-vscode-task"
+            ]
+        }
+    },
+    "remoteUser": "vscode"
+}
