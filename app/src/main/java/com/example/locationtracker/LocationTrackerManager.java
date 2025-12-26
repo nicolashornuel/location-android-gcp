@@ -43,6 +43,10 @@ public class LocationTrackerManager {
             @Override
             public void onLocationResult(@NonNull final LocationResult locationResult) {
                 for (final var location : locationResult.getLocations()) {
+
+                    // Empêcher les positions « approximatives »
+                    if (location.getAccuracy() > config.getMaxAccuracy()) return;
+
                     if (listener != null)
                         listener.onLocationChanged(location);
                 }

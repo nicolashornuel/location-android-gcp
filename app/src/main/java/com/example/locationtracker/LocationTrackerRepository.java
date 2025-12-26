@@ -6,6 +6,7 @@ import android.os.Build;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.Timestamp;
 import com.google.firebase.functions.FirebaseFunctions;
 
 import java.io.IOException;
@@ -82,7 +83,6 @@ public class LocationTrackerRepository {
     }
 
     private LocationPayload mapLocationToData(@NonNull final Location location) {
-
         final var document = LocationPayload.LocationDocument.builder()
                 .lat(location.getLatitude())
                 .lng(location.getLongitude())
@@ -93,7 +93,7 @@ public class LocationTrackerRepository {
                 .altitude(location.hasAltitude() ? location.getAltitude() : null)
                 .bearing(location.hasBearing() ? location.getBearing() : null)
                 .user(Build.MANUFACTURER + "-" + Build.DEVICE)
-                .date(new Date())
+                .date(Timestamp.now())
                 .address(getCompleteAddressString(location))
                 .build();
 
@@ -125,7 +125,7 @@ public class LocationTrackerRepository {
             private Float bearing;
 
             private String user;
-            private Date date;
+            private Timestamp date;
             private String address;
         }
     }

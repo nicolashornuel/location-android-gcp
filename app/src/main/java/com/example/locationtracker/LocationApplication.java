@@ -46,14 +46,16 @@ public class LocationApplication extends Application {
     @Builder
     public static class LocationConfig {
         @Builder.Default
-        private final int priority = Priority.PRIORITY_BALANCED_POWER_ACCURACY;
+        private final int priority = Priority.PRIORITY_HIGH_ACCURACY; // GPS pur
         @Builder.Default
-        private final long updateInterval = 5 * 60 * 1000; // 5 minutes
+        private final long updateInterval = 10 * 1000; // callback souhaité toutes les 10s
         @Builder.Default
-        private final long minUpdateInterval = 60 * 1000; // 1 minutes
+        private final long minUpdateInterval = 5 * 1000; // pas plus d’une fois toutes les 5s
         @Builder.Default
-        private final float minUpdateDistanceMeters = 100; // 100 mètres
+        private final float minUpdateDistanceMeters = 50; // déclenche seulement si mouvement >50m
         @Builder.Default
-        private final boolean waitForAccurateLocation = false;
+        private final boolean waitForAccurateLocation = true; // attend fix GPS précis
+        @Builder.Default
+        private final float maxAccuracy = 10; // ignore positions >10 m
     }
 }
