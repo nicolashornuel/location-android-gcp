@@ -1,36 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-android:orientation="vertical"
-android:padding="16dp"
-android:gravity="center">
-
-<TextView
-    android:id="@+id/tvLocation"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Aucune position"
-    android:textSize="18sp"
-    android:textAlignment="center"
-    android:padding="16dp"
-    android:background="#F0F0F0"
-    android:layout_marginBottom="24dp" />
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center"
+    android:background="@color/background">
 
-<Button
-    android:id="@+id/btnStart"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Démarrer le service GPS"
-    android:textSize="16sp"
-    android:layout_marginBottom="12dp" />
+    <!-- Status Card -->
+    <com.google.android.material.card.MaterialCardView
+        style="@style/Widget.LocationTracker.Card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp">
 
-<Button
-    android:id="@+id/btnStop"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Arrêter le service GPS"
-    android:textSize="16sp"
-    android:enabled="false" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="STATUT ACTUEL"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary"
+                android:letterSpacing="0.1"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tvLocation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Service en attente..."
+                android:textSize="16sp"
+                android:textColor="@color/text_primary"
+                android:lineSpacingExtra="4dp"
+                android:fontFamily="sans-serif"/>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Controls -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnStart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Démarrer le suivi"
+        style="@style/Widget.LocationTracker.Button"
+        android:layout_marginBottom="12dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnStop"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Arrêter"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:textColor="@color/primary"
+        app:strokeColor="@color/primary_variant"
+        app:cornerRadius="12dp"
+        android:paddingVertical="16dp"
+        android:enabled="false" />
 
 </LinearLayout>
