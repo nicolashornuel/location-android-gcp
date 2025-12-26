@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "1076193011248",
+    "project_id": "agenda-bf245",
+    "storage_bucket": "agenda-bf245.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1076193011248:android:636f9631cc6e90878eaff5",
+        "android_client_info": {
+          "package_name": "com.example.locationtracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1076193011248-uudmjclhamj820cugbabhfgpmin0mo1h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgbl89dby3f5eocBAeyfUUKGzcc1DLzeE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1076193011248-kidl3rsj3og950a9mtskrqfbcatnlp58.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1076193011248:android:7a29e8b01eb32afb8eaff5",
+        "android_client_info": {
+          "package_name": "io.ionic.starter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1076193011248-uudmjclhamj820cugbabhfgpmin0mo1h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgbl89dby3f5eocBAeyfUUKGzcc1DLzeE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1076193011248-kidl3rsj3og950a9mtskrqfbcatnlp58.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
