@@ -3,16 +3,16 @@ package com.example.locationtracker;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Build;
+import android.util.Log;
 
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.TaskCompletionSource;
-import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.functions.FirebaseFunctions;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -29,32 +29,38 @@ public class LocationTrackerRepository {
 
     @NonNull
     private final Geocoder geocoder;
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public Task<String> createOne(@NonNull final Location location) {
-        // Utilisation de TaskCompletionSource car Tasks.call est déprécié
-        final var tcs = new TaskCompletionSource<>();
 
-        executorService.execute(() -> {
-            try {
-                final var payload = mapLocationToData(location);
-                tcs.setResult(payload);
-            } catch (Exception e) {
-                tcs.setException(e);
-            }
-        });
+        final var auth = FirebaseAuth.getInstance();
 
-        // Exécuter le mapping (et donc le géocodage) sur un thread d'arrière-plan
-        return tcs.getTask()
-                .continueWithTask(task -> {
-                    if (!task.isSuccessful() || task.getResult() == null) {
-                        return Tasks.forException(task.getException() != null ? task.getException() : new Exception("Mapping failed"));
+        if (auth.getCurrentUser() == null) {
+            return auth.signInAnonymously()
+                    .continueWithTask(task -> {
+                        if (!task.isSuccessful()) {
+                            throw task.getException();
+                        }
+                        return callFunction(location);
+                    });
+        }
+
+        return callFunction(location);
+    }
+
+    private Task<String> callFunction(@NonNull final Location location) {
+        return FirebaseFunctions.getInstance()
+                .getHttpsCallable(FUNCTION_NAME)
+                .call(mapLocationToData(location))
+                .continueWith(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.e("FUNCTION", "Erreur Cloud Function", task.getException());
+                        throw task.getException();
                     }
-                    return FirebaseFunctions.getInstance()
-                            .getHttpsCallable(FUNCTION_NAME)
-                            .call(task.getResult());
-                })
-                .continueWith(task -> (task.isSuccessful() && task.getResult() != null) ? (String) task.getResult().getData() : "");
+
+                    Object data = task.getResult().getData();
+                    Log.d("FUNCTION", "Réponse brute: " + data);
+                    return data != null ? data.toString() : "";
+                });
     }
 
     private String getCompleteAddressString(@NonNull final Location location) {
@@ -80,25 +86,24 @@ public class LocationTrackerRepository {
         }
     }
 
-    private LocationPayload mapLocationToData(@NonNull final Location location) {
-        final var document = LocationPayload.LocationDocument.builder()
-                .lat(location.getLatitude())
-                .lng(location.getLongitude())
-                .time(location.getTime())
-                .provider(location.getProvider() != null ? location.getProvider() : "unknown")
-                .accuracy(location.getAccuracy())
-                .speed(location.hasSpeed() ? location.getSpeed() : null)
-                .altitude(location.hasAltitude() ? location.getAltitude() : null)
-                .bearing(location.hasBearing() ? location.getBearing() : null)
-                .user(Build.MANUFACTURER + "-" + Build.DEVICE)
-                .address(getCompleteAddressString(location))
-                .date(Timestamp.now())
-                .build();
+    private Map<String, Object> mapLocationToData(@NonNull final Location location) {
+        final var document = new HashMap<String, Object>();
+        document.put("lat", location.getLatitude());
+        document.put("lng", location.getLongitude());
+        document.put("time", location.getTime());
+        document.put("provider", location.getProvider());
+        document.put("accuracy", location.getAccuracy());
+        document.put("speed", location.hasSpeed() ? location.getSpeed() : null);
+        document.put("altitude", location.hasAltitude() ? location.getAltitude() : null);
+        document.put("bearing", location.hasBearing() ? location.getBearing() : null);
+        document.put("user", Build.MANUFACTURER + "-" + Build.DEVICE);
+        document.put("address", getCompleteAddressString(location));
+        document.put("date", System.currentTimeMillis());
 
-        return LocationPayload.builder()
-                .collection(COLLECTION_NAME)
-                .document(document)
-                .build();
+        final var payload = new HashMap<String, Object>();
+        payload.put("collection", COLLECTION_NAME);
+        payload.put("document", document);
+        return payload;
     }
 
     @Data

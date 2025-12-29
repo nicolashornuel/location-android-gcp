@@ -67,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        serviceRunning = isLocationServiceRunning();
+        updateButtonStates();
         registerLocationReceiver();
     }
 
@@ -175,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
 
         serviceRunning = true;
         updateButtonStates();
+        tvLocation.setText("Recherche de la position...");
         showToast("Service de localisation démarré");
     }
 
@@ -202,6 +205,18 @@ public class MainActivity extends AppCompatActivity {
         );
 
         tvLocation.setText(displayText);
+    }
+
+    private boolean isLocationServiceRunning() {
+        android.app.ActivityManager manager = (android.app.ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        if (manager != null) {
+            for (android.app.ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+                if (LocationForegroundService.class.getName().equals(service.service.getClassName())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void updateButtonStates() {
