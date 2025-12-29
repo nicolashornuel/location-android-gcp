@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class LocationTrackerBroadcaster {
 
-    public static final String ACTION_LOCATION_UPDATE = "com.example.monapp.LOCATION_UPDATE";
+    public static final String ACTION_LOCATION_UPDATE = "com.example.locationtracker.LOCATION_UPDATE";
     public static final String EXTRA_LATITUDE = "latitude";
     public static final String EXTRA_LONGITUDE = "longitude";
     public static final String EXTRA_ACCURACY = "accuracy";
