@@ -2,13 +2,16 @@ package com.example.locationtracker;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,14 +30,12 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvLocation;
     private Button btnStart, btnStop;
     private boolean serviceRunning = false;
-
+    private LocationForegroundService locationService;
     private final BroadcastReceiver locationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-                Location location = LocationTrackerBroadcaster.extractLocationFromIntent(intent);
-            if (location != null) {
-                displayLocation(location);
-            }
+            final var location = LocationTrackerBroadcaster.extractLocationFromIntent(intent);
+            if (location != null) displayLocation(location);
         }
     };
 
@@ -88,9 +89,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean checkAndRequestPermissions() {
-        if (hasAllPermissions()) {
-            return true;
-        }
+        if (hasAllPermissions()) return true;
 
         requestRequiredPermissions();
         return false;
@@ -163,11 +162,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startLocationService() {
-        if (serviceRunning) {
-            return;
-        }
+        if (serviceRunning) return;
 
-        Intent serviceIntent = new Intent(this, LocationForegroundService.class);
+        final var serviceIntent = new Intent(this, LocationForegroundService.class);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(serviceIntent);
@@ -175,6 +172,7 @@ public class MainActivity extends AppCompatActivity {
             startService(serviceIntent);
         }
 
+        bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
         serviceRunning = true;
         updateButtonStates();
         tvLocation.setText("Recherche de la position...");
@@ -182,13 +180,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void stopLocationService() {
-        if (!serviceRunning) {
-            return;
-        }
+        if (!serviceRunning) return;
 
-        Intent serviceIntent = new Intent(this, LocationForegroundService.class);
+        final var serviceIntent = new Intent(this, LocationForegroundService.class);
         stopService(serviceIntent);
-
+        unbindService(connection);
         serviceRunning = false;
         updateButtonStates();
         tvLocation.setText("Service arrêté");
@@ -196,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void displayLocation(Location location) {
-        String displayText = String.format(
+        final var displayText = String.format(
                 "Latitude: %.6f\nLongitude: %.6f\nPrécision: %.1f m\nVitesse: %.2f m/s",
                 location.getLatitude(),
                 location.getLongitude(),
@@ -208,16 +204,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean isLocationServiceRunning() {
-        android.app.ActivityManager manager = (android.app.ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        if (manager != null) {
-            for (android.app.ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-                if (LocationForegroundService.class.getName().equals(service.service.getClassName())) {
-                    return true;
-                }
-            }
+        if (locationService != null) {
+            return locationService.isRunning();
         }
         return false;
     }
+
+    private final ServiceConnection connection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder binder) {
+            final var b = (LocationForegroundService.LocalBinder) binder;
+            locationService = b.getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            locationService = null;
+        }
+    };
 
     private void updateButtonStates() {
         btnStart.setEnabled(!serviceRunning);

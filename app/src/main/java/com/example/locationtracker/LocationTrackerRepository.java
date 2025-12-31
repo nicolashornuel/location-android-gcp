@@ -6,18 +6,19 @@ import android.os.Build;
 import android.util.Log;
 
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.Timestamp;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.functions.FirebaseFunctions;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import lombok.Builder;
-import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
@@ -29,6 +30,7 @@ public class LocationTrackerRepository {
 
     @NonNull
     private final Geocoder geocoder;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public Task<String> createOne(@NonNull final Location location) {
 
@@ -40,32 +42,43 @@ public class LocationTrackerRepository {
                         if (!task.isSuccessful()) {
                             throw task.getException();
                         }
-                        return callFunction(location);
+                        return prepareAndCallFunction(location);
                     });
         }
 
-        return callFunction(location);
+        return prepareAndCallFunction(location);
+    }
+    
+    private Task<String> prepareAndCallFunction(@NonNull final Location location) {
+        return Tasks.call(executor, () -> mapLocationToData(location))
+                .continueWithTask(task -> {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
+                    }
+                    return callFunction(task.getResult());
+                });
     }
 
-    private Task<String> callFunction(@NonNull final Location location) {
+    private Task<String> callFunction(@NonNull final Map<String, Object> data) {
         return FirebaseFunctions.getInstance()
                 .getHttpsCallable(FUNCTION_NAME)
-                .call(mapLocationToData(location))
+                .call(data)
                 .continueWith(task -> {
                     if (!task.isSuccessful()) {
                         Log.e("FUNCTION", "Erreur Cloud Function", task.getException());
                         throw task.getException();
                     }
 
-                    Object data = task.getResult().getData();
-                    Log.d("FUNCTION", "Réponse brute: " + data);
-                    return data != null ? data.toString() : "";
+                    Object resultData = task.getResult().getData();
+                    Log.d("FUNCTION", "Réponse brute: " + resultData);
+                    return resultData != null ? resultData.toString() : "";
                 });
     }
 
     private String getCompleteAddressString(@NonNull final Location location) {
         if (!Geocoder.isPresent()) return "";
         try {
+            // NOTE: This blocks, so it MUST be called on a background thread.
             final var addresses = this.geocoder.getFromLocation(
                     location.getLatitude(),
                     location.getLongitude(),
@@ -81,7 +94,7 @@ public class LocationTrackerRepository {
                     )
                     .orElse("");
         } catch (IOException e) {
-            // Log erreur ou ignorer silencieusement pour ne pas bloquer l'envoi
+            Log.w("LocationTrackerRepository", "Geocoding failed: " + e.getMessage());
             return "";
         }
     }
@@ -99,37 +112,9 @@ public class LocationTrackerRepository {
         document.put("user", Build.MANUFACTURER + "-" + Build.DEVICE);
         document.put("address", getCompleteAddressString(location));
         document.put("date", System.currentTimeMillis());
-
         final var payload = new HashMap<String, Object>();
         payload.put("collection", COLLECTION_NAME);
         payload.put("document", document);
         return payload;
-    }
-
-    @Data
-    @Builder
-    private static class LocationPayload {
-
-        private String collection;
-        private LocationDocument document;
-
-        @Data
-        @Builder
-        private static class LocationDocument {
-
-            private double lat;
-            private double lng;
-            private long time;
-            private String provider;
-            private float accuracy;
-
-            private Float speed;
-            private Double altitude;
-            private Float bearing;
-
-            private String user;
-            private Timestamp date;
-            private String address;
-        }
     }
 }
