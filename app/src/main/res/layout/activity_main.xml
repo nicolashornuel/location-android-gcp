@@ -65,4 +65,23 @@
         android:paddingVertical="16dp"
         android:enabled="false" />
 
+    <CheckBox
+        android:id="@+id/chkAutoStart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Démarrer automatiquement au démarrage du téléphone"
+        android:textSize="14sp"
+        android:padding="12dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnStats"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Stats"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:textColor="@color/primary"
+        app:strokeColor="@color/primary_variant"
+        app:cornerRadius="12dp"
+        android:paddingVertical="16dp" />
+
 </LinearLayout>

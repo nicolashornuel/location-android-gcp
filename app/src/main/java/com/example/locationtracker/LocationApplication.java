@@ -26,10 +26,11 @@ public class LocationApplication extends Application {
         final var geocoder = new Geocoder(context, Locale.getDefault());
         this.container = new Container(
                 context,
-                new LocationTrackerManager(context, fusedLocationClient, LocationConfig.builder().build()),
-                new LocationTrackerRepository(geocoder),
+                new LocationTrackerManager(context, fusedLocationClient, LocationConfig.getDefault()),
+                new LocationRepository(context, geocoder),
                 new LocationTrackerNotification(context),
-                new LocationTrackerBroadcaster(context));
+                new LocationTrackerBroadcaster(context),
+                new ServicePreferences(context));
     }
 
     @Getter
@@ -37,9 +38,10 @@ public class LocationApplication extends Application {
     public class Container {
         private final Context applicationContext;
         private final LocationTrackerManager manager;
-        private final LocationTrackerRepository repository;
+        private final LocationRepository repository;
         private final LocationTrackerNotification notifier;
         private final LocationTrackerBroadcaster broadcaster;
+        private final ServicePreferences servicePreferences;
     }
 
     @Getter
@@ -57,5 +59,22 @@ public class LocationApplication extends Application {
         private final boolean waitForAccurateLocation = true; // attend fix GPS précis
         @Builder.Default
         private final float maxAccuracy = 10; // ignore positions >10 m
+
+        public static LocationConfig getDefault() {
+            return LocationConfig.builder().build();
+        }
+
+        public static LocationConfig getTest() {
+            return LocationConfig.builder()
+                    .priority(Priority.PRIORITY_HIGH_ACCURACY)   // GPS précis
+                    .updateInterval(60_000L)                     // toutes les 60 secondes
+                    .minUpdateInterval(60_000L)                  // jamais plus souvent
+                    .minUpdateDistanceMeters(0f)                 // 🔥 IMPORTANT : même sans déplacement
+                    .waitForAccurateLocation(false)              // pas bloquant
+                    .maxAccuracy(25f)                            // tolérance réaliste en statique
+                    .build();
+        }
     }
+
+
 }

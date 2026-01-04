@@ -5,15 +5,24 @@
     <!-- Permissions de localisation -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- CRITIQUE : Permission pour la localisation en arrière-plan (Android 10+) -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Permissions pour le démarrage automatique -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.QUICKBOOT_POWERON" />
+
+    <!-- Permission Internet pour Firebase -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
     <application
-        android:name="com.example.locationtracker.LocationApplication"
+        android:name=".LocationApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -24,13 +33,6 @@
         android:theme="@style/Theme.LocationTracker"
         tools:targetApi="31">
 
-        <!-- Déclaration du service -->
-        <service
-            android:name=".LocationForegroundService"
-            android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="location" />
-
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -38,10 +40,41 @@
             android:theme="@style/Theme.LocationTracker">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Service de localisation -->
+        <service
+            android:name=".LocationForegroundService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="location" />
+
+        <!-- Receiver pour le boot -->
+        <receiver
+            android:name=".BootReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+            <intent-filter android:priority="999">
+                <!-- Démarrage normal -->
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+
+                <!-- Démarrage en mode Direct Boot (Android 7+) -->
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+
+                <!-- Démarrage rapide (certains fabricants) -->
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+
+                <!-- HTC -->
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+
+                <!-- Xiaomi -->
+                <action android:name="android.intent.action.REBOOT" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
