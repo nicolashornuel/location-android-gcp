@@ -17,4 +17,9 @@
     
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
+    
+    <!-- Disabled states -->
+    <color name="button_disabled">#CBD5E1</color> <!-- Slate 300 for disabled buttons -->
+    <color name="text_disabled">#94A3B8</color> <!-- Slate 400 for disabled text -->
+    <color name="stroke_disabled">#E2E8F0</color> <!-- Slate 200 for disabled stroke -->
 </resources>

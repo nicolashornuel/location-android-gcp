@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
             if (locationService != null) {
                 String stats = locationService.getTrackingStats();
                 new AlertDialog.Builder(this)
-                        .setTitle("Stats GPS")
+                        .setTitle(R.string.dialog_stats_title)
                         .setMessage(stats)
                         .show();
             }
@@ -343,7 +343,7 @@ public class MainActivity extends AppCompatActivity {
 
         serviceRunning = true;
         updateButtonStates();
-        tvLocation.setText("Recherche de la position...");
+        tvLocation.setText(R.string.status_searching);
         showToast("Service de localisation démarré");
     }
 
@@ -388,7 +388,7 @@ public class MainActivity extends AppCompatActivity {
         serviceRunning = false;
         locationService = null;
         updateButtonStates();
-        tvLocation.setText("Service arrêté");
+        tvLocation.setText(R.string.status_stopped);
         showToast("Service de localisation arrêté");
     }
 

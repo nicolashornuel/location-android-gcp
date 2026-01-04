@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">LocationTracker</string>
+    
+    <!-- Main Activity -->
+    <string name="status_label">STATUT ACTUEL</string>
+    <string name="status_waiting">Service en attente…</string>
+    <string name="btn_start_tracking">Démarrer le suivi</string>
+    <string name="btn_stop_tracking">Arrêter</string>
+    <string name="checkbox_auto_start">Démarrer automatiquement au démarrage du téléphone</string>
+    <string name="btn_stats">Statistiques</string>
+    
+    <!-- Status messages (already in MainActivity but good to have here too) -->
+    <string name="status_searching">Recherche de la position…</string>
+    <string name="status_stopped">Service arrêté</string>
+    
+    <!-- Dialog titles -->
+    <string name="dialog_stats_title">Stats GPS</string>
 </resources>
